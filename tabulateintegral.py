@@ -3,26 +3,26 @@ import numpy as np
 
 class TabulateIntegral:
     def __init__(self):
+        self.ro = None
+        self.coef = None
         pass
 
     def read_ro(self):
-        arr = np.load('ro.npz')
-        ro, grid = arr['arr_1'], arr['arr_0']
-        return  grid, ro
+        self.ro = np.load('ro_tabulated.npz')['arr_0']
 
     def get_interpolation_coef(self):
         return np.random.randn(7)
 
-    def tabulate_integral(self, grid):
-        ro_grid, ro = self.read_ro()
+    def tabulate_integral(self, y_grid):
+        ro = self.read_ro()
         ans = []
-        for y in grid:
+        for y in y_grid:
             ans.append(self.compute_integral(ro, y))
         return np.array(ans)
 
     def write_coef(self):
-        coef = self.get_interpolation_coef()
-        np.savez('interpolation_coef.npz', coef)
+        self.coef = self.get_interpolation_coef()
+        np.savez('interpolation_coef.npz', self.coef)
 
     def compute_integral(self, ro, y):
         return 42

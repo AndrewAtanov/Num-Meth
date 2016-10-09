@@ -5,7 +5,7 @@ from design import Ui_Form
 from solver import Solver
 from Plotter import Plotter
 import numpy as np
-
+import Tabulate
 
 class MainProgram(Ui_Form):
     def __init__(self, dialog):
@@ -30,7 +30,6 @@ class MainProgram(Ui_Form):
         self.read_s_btn.clicked.connect(self.read_s)
         self.read_z_btn.clicked.connect(self.read_z)
 
-
     def plot(self):
         self.plotter.plot(self.plot_combobox.currentText(),
                           float(self.arg_start.text()),
@@ -51,9 +50,16 @@ class MainProgram(Ui_Form):
         self.solver.create_z(self.z_expr.text())
 
     def start(self):
+
+        self.read_ro()
+        self.read_s()
+        self.read_z()
+
         self.solver.set_parameters(self.get_float_from(self.x0),
                                    self.get_float_from(self.y0),
                                    self.get_float_from(self.T))
+
+        self.solver.save_init_func()
 
         if self.auto_mode.isChecked():
             beta_grid = np.linspace(-4, 4, 10)
@@ -65,7 +71,11 @@ class MainProgram(Ui_Form):
                 return
             beta_grid = np.array([beta])
 
+
         x, y, beta = self.solver.choose_best_diffeq_solve(beta_grid)
+
+        self.solver.set_solve(x, y)
+        self.solver.save_solve()
 
         self.trajectory_plot.plot_tabulate(x, self.solver.s(self.solver.t_grid()), 'bo-')
         self.filt_plot.plot_tabulate(self.solver.t_grid(), y, 'ro-')

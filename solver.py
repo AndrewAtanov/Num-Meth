@@ -1,6 +1,7 @@
 import numpy as np
-from diffeq import DiffEq
-
+from diffeq import DiffEq, PolyFunc
+import Tabulate
+from tabulateintegral import TabulateIntegral
 
 def ro(x, a, b):
     return a * x * (b - x)
@@ -15,12 +16,18 @@ class Solver:
         self.ro = _id
         self.s = _id
         self.z = _id
+        self.u = None
+
         self.diff = DiffEq()
+        self.tab = TabulateIntegral()
 
         self.N = 50
         self.x0 = None
         self.y0 = None
         self.T = None
+
+        self.x = None
+        self.y = None
 
     def set_parameters(self, x0, y0, T):
         self.x0 = x0
@@ -67,3 +74,21 @@ class Solver:
 
     def t_grid(self):
         return np.linspace(0, self.T, self.N)
+
+    def set_solve(self, x, y):
+        self.x = x
+        self.y = y
+
+    def save_solve(self):
+        np.savez('cauchy_solve.npz', self.t_grid(), self.x, self.y)
+
+    def save_init_func(self):
+        Tabulate.write_tab_func(self.ro, self.t_grid(), 'ro_tabulated.npz')
+        Tabulate.write_tab_func(self.s, self.t_grid(), 's_tabulated.npz')
+        Tabulate.write_tab_func(self.z, self.t_grid(), 'z_tabulated.npz')
+
+    def tabulate_int(self):
+        self.tab.read_ro()
+        u_tab = self.tab.tabulate_integral(np.linspace(0, 10, self.N))
+        self.tab.write_coef()
+        self.u = PolyFunc(self.tab.coef)

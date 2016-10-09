@@ -187,7 +187,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget_2">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <property name="minimumSize">
@@ -239,7 +239,7 @@
    <item row="3" column="1">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
@@ -348,6 +348,9 @@
               </item>
               <item row="3" column="0" rowspan="2" colspan="3">
                <widget class="QPushButton" name="read_ro_btn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>Задать</string>
                 </property>
@@ -397,7 +400,7 @@
                  <string/>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>t**2</string>
                 </property>
                 <property name="maxLength">
                  <number>32769</number>
@@ -439,6 +442,9 @@
               </item>
               <item row="3" column="0" rowspan="2" colspan="3">
                <widget class="QPushButton" name="read_s_btn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>Задать</string>
                 </property>
@@ -501,7 +507,7 @@
                  <string/>
                 </property>
                 <property name="text">
-                 <string/>
+                 <string>np.sqrt(t)</string>
                 </property>
                 <property name="maxLength">
                  <number>32769</number>
@@ -530,6 +536,9 @@
               </item>
               <item row="3" column="0" rowspan="2" colspan="3">
                <widget class="QPushButton" name="read_z_btn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>Задать</string>
                 </property>
