@@ -48,12 +48,12 @@ class MyDynamicMplCanvas(MyMplCanvas):
     def compute_initial_figure(self):
         self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
 
-    def plot(self, x, y):
-        self.axes.plot(x, y, 'r')
+    def plot(self, x, y, params=''):
+        self.axes.plot(x, y, params)
         self.draw()
 
-    def scatter(self, x, y):
-        self.axes.scatter(x, y)
+    def scatter(self, x, y, params=''):
+        self.axes.scatter(x, y, params)
         self.draw()
 
 
@@ -72,6 +72,9 @@ class Plotter:
         elif func == 'z':
             self.canvas.plot(x, self.solver.z(x))
 
-    def scatter(self, x, y):
-        self.canvas.scatter(x, y)
+    def scatter(self, x, y, params=''):
+        self.canvas.scatter(x, y, params)
+
+    def plot_tabulate(self, x, y, params=''):
+        self.canvas.plot(x, y, params)
 

@@ -1,4 +1,5 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
+
 import sys
 from design import Ui_Form
 from solver import Solver
@@ -12,16 +13,23 @@ class MainProgram(Ui_Form):
         self.setupUi(dialog)
 
         self.solver = Solver()
+
         self.plotter = Plotter(self.plot_widget, self.solver)
+
+        self.trajectory_plot = Plotter(self.plot_trajectory, self.solver)
+        self.filt_plot = Plotter(self.plot_filt, self.solver)
 
         # Connect "add" button with a custom function (addInputTextToListbox)
 
         self.plot_btn.clicked.connect(self.plot)
 
+        self.start_btn.clicked.connect(self.start)
+
         # Set functions
         self.read_ro_btn.clicked.connect(self.read_ro)
         self.read_s_btn.clicked.connect(self.read_s)
         self.read_z_btn.clicked.connect(self.read_z)
+
 
     def plot(self):
         self.plotter.plot(self.plot_combobox.currentText(),
@@ -42,7 +50,35 @@ class MainProgram(Ui_Form):
     def read_z(self):
         self.solver.create_z(self.z_expr.text())
 
+    def start(self):
+        self.solver.set_parameters(self.get_float_from(self.x0),
+                                   self.get_float_from(self.y0),
+                                   self.get_float_from(self.T))
 
+        if self.auto_mode.isChecked():
+            beta_grid = np.linspace(-4, 4, 10)
+        else:
+            try:
+                beta = float(self.beta.text())
+            except ValueError:
+                self.error_dialog('Beta should be float!')
+                return
+            beta_grid = np.array([beta])
+
+        x, y, beta = self.solver.choose_best_diffeq_solve(beta_grid)
+
+        self.trajectory_plot.plot_tabulate(x, self.solver.s(self.solver.t_grid()), 'bo-')
+        self.filt_plot.plot_tabulate(self.solver.t_grid(), y, 'ro-')
+
+    def error_dialog(self, text):
+        message = QtWidgets.QMessageBox.critical(None, "Error message", text,
+                                                 QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+
+    def get_float_from(self, le):
+        try:
+            return float(le.text())
+        except ValueError:
+            self.error_dialog('{} should be float!'.format(le.objectName()))
 
 
 app = QtWidgets.QApplication(sys.argv)
