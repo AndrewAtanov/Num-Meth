@@ -11,6 +11,13 @@ def _id(arg):
     return arg
 
 
+def expr_funv(t, expr):
+    try:
+        return eval(expr)
+    except:
+        print('Error in eval')
+
+
 class Solver:
     def __init__(self):
         self.ro = _id
@@ -46,13 +53,13 @@ class Solver:
 
     def create_s(self, expr):
         def f(t):
-            return eval(expr)
+            return expr_funv(t, expr)
 
         self.s = f
 
     def create_z(self, expr):
         def f(t):
-            return eval(expr)
+            return expr_funv(t, expr)
 
         self.z = f
 

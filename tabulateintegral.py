@@ -14,10 +14,10 @@ class TabulateIntegral:
         return np.random.randn(7)
 
     def tabulate_integral(self, y_grid):
-        ro = self.read_ro()
+        self.read_ro()
         ans = []
         for y in y_grid:
-            ans.append(self.compute_integral(ro, y))
+            ans.append(self.compute_integral(self.ro, y))
         return np.array(ans)
 
     def write_coef(self):

@@ -6,6 +6,8 @@ from solver import Solver
 from Plotter import Plotter
 import numpy as np
 import Tabulate
+from PyQt5.QtGui import QDoubleValidator
+
 
 class MainProgram(Ui_Form):
     def __init__(self, dialog):
@@ -30,6 +32,14 @@ class MainProgram(Ui_Form):
         self.read_s_btn.clicked.connect(self.read_s)
         self.read_z_btn.clicked.connect(self.read_z)
 
+        self.ro_a.setValidator(QDoubleValidator(self.beta_end))
+        self.ro_b.setValidator(QDoubleValidator(self.beta_end))
+        self.x0.setValidator(QDoubleValidator(self.beta_end))
+        self.y0.setValidator(QDoubleValidator(self.beta_end))
+        self.T.setValidator(QDoubleValidator(self.beta_end))
+        self.beta_start.setValidator(QDoubleValidator(self.beta_end))
+        self.beta_end.setValidator(QDoubleValidator(self.beta_end))
+
     def plot(self):
         self.plotter.plot(self.plot_combobox.currentText(),
                           float(self.arg_start.text()),
@@ -37,10 +47,10 @@ class MainProgram(Ui_Form):
 
     def read_ro(self):
         try:
-            a = float(self.ro_a.text())
-            b = float(self.ro_b.text())
-        except:
-            a = b = 1
+            a = self.get_float_from(self.ro_a)
+            b = self.get_float_from(self.ro_b)
+        except ValueError:
+            return
         self.solver.create_ro(a, b)
 
     def read_s(self):
@@ -50,35 +60,33 @@ class MainProgram(Ui_Form):
         self.solver.create_z(self.z_expr.text())
 
     def start(self):
+        try:
+            self.read_ro()
+            self.read_s()
+            self.read_z()
 
-        self.read_ro()
-        self.read_s()
-        self.read_z()
+            self.solver.set_parameters(self.get_float_from(self.x0),
+                                       self.get_float_from(self.y0),
+                                       self.get_float_from(self.T))
 
-        self.solver.set_parameters(self.get_float_from(self.x0),
-                                   self.get_float_from(self.y0),
-                                   self.get_float_from(self.T))
+            self.solver.save_init_func()
 
-        self.solver.save_init_func()
+            if self.auto_mode.isChecked():
+                beta_grid = np.linspace(self.get_float_from(self.beta_start), self.get_float_from(self.beta_end), 10)
+            else:
+                beta_grid = np.array([self.get_float_from(self.beta_start)])
 
-        if self.auto_mode.isChecked():
-            beta_grid = np.linspace(-4, 4, 10)
-        else:
-            try:
-                beta = float(self.beta.text())
-            except ValueError:
-                self.error_dialog('Beta should be float!')
-                return
-            beta_grid = np.array([beta])
+            self.solver.tabulate_int()
 
+            x, y, beta = self.solver.choose_best_diffeq_solve(beta_grid)
 
-        x, y, beta = self.solver.choose_best_diffeq_solve(beta_grid)
+            self.solver.set_solve(x, y)
+            self.solver.save_solve()
 
-        self.solver.set_solve(x, y)
-        self.solver.save_solve()
-
-        self.trajectory_plot.plot_tabulate(x, self.solver.s(self.solver.t_grid()), 'bo-')
-        self.filt_plot.plot_tabulate(self.solver.t_grid(), y, 'ro-')
+            self.trajectory_plot.plot_tabulate(x, self.solver.s(self.solver.t_grid()), 'bo-')
+            self.filt_plot.plot_tabulate(self.solver.t_grid(), y, 'ro-')
+        except ValueError:
+            return
 
     def error_dialog(self, text):
         message = QtWidgets.QMessageBox.critical(None, "Error message", text,
@@ -86,9 +94,10 @@ class MainProgram(Ui_Form):
 
     def get_float_from(self, le):
         try:
-            return float(le.text())
+            return float(le.text().replace(',','.'))
         except ValueError:
             self.error_dialog('{} should be float!'.format(le.objectName()))
+            raise ValueError
 
 
 app = QtWidgets.QApplication(sys.argv)
