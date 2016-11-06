@@ -9,19 +9,19 @@ experiments = [{
     'func_name': 'sin',
     'a': 0,
     'b': 3,
-    'n': 11,
+    'n': 101,
 }, {
     'func': np.abs,
     'func_name': 'abs',
     'a': -1,
     'b': 1,
-    'n': 11,
+    'n': 101,
 }, {
     'func': lambda x: np.sin(1/x),
     'func_name': 'sin(1/x)',
     'a': 0.01,
     'b': 2,
-    'n': 111,
+    'n': 1001,
 }]
 
 
@@ -48,26 +48,28 @@ for exp in experiments:
 if len(sys.argv) >= 2 and sys.argv[1] == 'err-plot':
     a = -5
     b = 5
-    func = lambda x: np.sin(x) ** 2
-    real_area, _ = quad(func, a, b)
+    func = lambda x: np.sin(x**2)
+    C = 5000
+    real_area, _ = quad(func, a, b, epsabs=1e-40)
+    # real_area = 1.167341799859246684315144818571149962526870545548151644324
 
     errors = []
-    t_errors = []
     n_grid = np.logspace(1, 3, dtype=int)
+    n_grid = np.array([n if n % 2 == 1 else n+1 for n in n_grid])
+
+    teor_errors = (b - a)**5 / ((n_grid - 1)**4) * C / 180
     for n in n_grid:
-        x = np.linspace(a, b, n if n % 2 == 1 else n + 1)
+        x = np.linspace(a, b, n)
         y = func(x)
-        h = x[1] - x[0]
-        # area, teor_err = trap(x, y)
-        area, teor_err = simpson(h, y)
-        # area = simps(y, dx=h)
+        h = (b - a) / (n - 1)
+        # area, _ = simpson(h, y)
+        area = simps(y, dx=h)
         pract_err = np.abs(area - real_area)
         errors.append(pract_err)
-        t_errors.append(teor_err)
 
-    plt.plot(np.log(n_grid), np.log(errors), '--', label='Real errors')
-    plt.plot(np.log(n_grid), np.log(t_errors), label='Theoretical errors')
-    plt.title('$sin^2(x)$ function')
+    plt.plot(np.log10(n_grid - 1), np.log10(errors), label='Real errors')
+    plt.plot(np.log10(n_grid - 1), np.log10(teor_errors), label='Theoretical errors')
+    plt.title('$sin(x^2)$, $x \in [{}, {}]$'.format(a, b))
     plt.xlabel('log(n)')
     plt.ylabel('log(error)')
     plt.legend()
