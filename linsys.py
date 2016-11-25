@@ -19,18 +19,18 @@ import numpy as np
 
 
 def solve(a, b):
-    if a.shape[0] != a.shape[1]:
-        raise ValueError('Matrix A should be quadratic.')
+    if a.shape[1] != 3:
+        raise ValueError('A should have shape (-1, 3).')
 
     p, q = [-a[0, 1] / a[0, 0]], [b[0] / a[0, 0]]
 
     for i in range(1, a.shape[0] - 1):
         tmp = p[-1]
-        p.append(a[i, i + 1] / (-a[i, i] - a[i, i - 1] * p[-1]))
-        q.append((a[i, i - 1] * q[-1] - b[i]) / (-a[i, i] - a[i, i - 1] * tmp))
+        p.append(a[i, 2] / (-a[i, 1] - a[i, 0] * p[-1]))
+        q.append((a[i, 0] * q[-1] - b[i]) / (-a[i, 1] - a[i, 0] * tmp))
 
     i = a.shape[0] - 1
-    q.append((a[i, i - 1] * q[-1] - b[i]) / (-a[i, i] - a[i, i - 1] * p[-1]))
+    q.append((a[i, 1] * q[-1] - b[i]) / (-a[i, 2] - a[i, 1] * p[-1]))
     x = [q[-1]]
 
     for i in range(a.shape[0] - 2, -1, -1):

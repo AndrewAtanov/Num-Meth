@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.polynomial.polynomial import polyval
-
+from utility import PolyFunc
 
 def Ufunc(y):
     return np.sin(y)
@@ -12,14 +12,6 @@ def Sfunc(t):
 
 def Zfunc(t):
     return np.log(t)
-
-
-class PolyFunc:
-    def __init__(self, coef):
-        self.coef = coef
-
-    def __call__(self, t):
-        return polyval(t, self.coef)
 
 
 class DiffEq:
